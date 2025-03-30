@@ -23,7 +23,7 @@ Resources:
     Properties:
       CodeUri: presignedUrl/
       Handler: app.lambda_handler
-      Runtime: python3.9
+      Runtime: python3.13
       Timeout: 3
       Architectures:
         - x86_64
@@ -45,7 +45,7 @@ Resources:
     Properties:
       CodeUri: categorize/
       Handler: app.lambda_handler
-      Runtime: python3.9
+      Runtime: python3.13
       Architectures:
         - x86_64
       Environment:
@@ -69,7 +69,7 @@ Resources:
     Properties:
       CodeUri: generateContent/
       Handler: app.lambda_handler
-      Runtime: python3.9
+      Runtime: python3.13
       Architectures:
         - x86_64
       Environment:
@@ -97,12 +97,105 @@ Resources:
           Properties:
             Queue: !GetAtt DetectLabelQueue.Arn
 
+  # Definição da função Lambda
+  GetAllProductsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: getAllProducts.lambda_handler
+      Runtime: python3.13
+      Timeout: 30
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref BedrockMetadataImagesS3Table
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /products
+            Method: GET
+
+  # Definição da função Lambda
+  GetProductByIdFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: getProductById.lambda_handler
+      Runtime: python3.13
+      CodeUri: .
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /products/{id}
+            Method: GET
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BedrockMetadataImagesS3Table
+
+  # Função Lambda
+  SendEmailNotificationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: sendEmailNotification.lambda_handler
+      Runtime: python3.13
+      Timeout: 30
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref BedrockMetadataImagesS3Table
+          SENDER_EMAIL: "juracifsouza@gmail.com"  # Substituir por email verificado no SES
+      Policies:
+        - SESCrudPolicy:
+            IdentityName: !Ref SenderIdentity
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BedrockMetadataImagesS3Table
+        - Statement:
+            - Effect: Allow
+              Action:
+                - sns:Receive
+                - sqs:ReceiveMessage
+                - sqs:DeleteMessage
+                - sqs:GetQueueAttributes
+              Resource: "*"
+      Events:
+        # Opção 1: Trigger via SNS
+        SNSTrigger:
+          Type: SNS
+          Properties:
+            Topic: !Ref NotificationTopic
+        # Opção 2: Trigger via SQS (descomente se preferir SQS)
+        # SQSTrigger:
+        #   Type: SQS
+        #   Properties:
+        #     Queue: !GetAtt NotificationQueue.Arn
+        #     BatchSize: 10
+
+  # Tópico SNS (usado se escolher trigger SNS)
+  NotificationTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: ImageUploadNotificationTopic
+
+  # Fila SQS (usado se escolher trigger SQS - descomente se necessário)
+  # NotificationQueue:
+  #   Type: AWS::SQS::Queue
+  #   Properties:
+  #     QueueName: ImageUploadNotificationQueue
+
+  # Identidade SES
+  SenderIdentity:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity: "juracifsouza@gmail.com"  # Substituir por email real
+
+  # Definição da tabela DynamoDB
   BedrockMetadataImagesS3Table:
     Type: AWS::Serverless::SimpleTable
     Properties:
       PrimaryKey:
         Name: id
         Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
 
 Outputs:
   ApiEcommerce:
@@ -114,3 +207,15 @@ Outputs:
   CreatePresignedUrlFunctionIamRole:
     Description: Implicit IAM Role created for function
     Value: !GetAtt CreatePresignedUrlFunction.Arn
+  ApiUrl:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/products"
+  TableName:
+    Description: "DynamoDB table name"
+    Value: !Ref BedrockMetadataImagesS3Table
+  LambdaFunctionArn:
+    Description: ARN da função Lambda
+    Value: !GetAtt SendEmailNotificationFunction.Arn
+  TopicArn:
+    Description: ARN do tópico SNS
+    Value: !Ref NotificationTopic
