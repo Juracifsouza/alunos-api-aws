@@ -141,7 +141,7 @@ Resources:
       Environment:
         Variables:
           TABLE_NAME: !Ref BedrockMetadataImagesS3Table
-          SENDER_EMAIL: "juracifsouza@gmail.com"  # Substituir por email verificado no SES
+          SENDER_EMAIL: "juracifsouza02@gmail.com"  # Substituir por email verificado no SES
       Policies:
         - SESCrudPolicy:
             IdentityName: !Ref SenderIdentity
@@ -184,7 +184,7 @@ Resources:
   SenderIdentity:
     Type: AWS::SES::EmailIdentity
     Properties:
-      EmailIdentity: "juracifsouza@gmail.com"  # Substituir por email real
+      EmailIdentity: "juracifsouza02@gmail.com"  # Substituir por email real
 
   # Definição da tabela DynamoDB
   BedrockMetadataImagesS3Table:
