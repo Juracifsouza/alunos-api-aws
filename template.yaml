@@ -97,13 +97,17 @@ Resources:
           Properties:
             Queue: !GetAtt DetectLabelQueue.Arn
 
-  # Definição da função Lambda
   GetAllProductsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: getAllProducts.lambda_handler
+      CodeUri: getAllProducts/
+      Handler: GetAllProducts.lambda_handler
       Runtime: python3.13
-      CodeUri: GetAllProducts/
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref BedrockMetadataImagesS3Table
       Policies:
         - Statement:
             - Effect: Allow
@@ -111,7 +115,7 @@ Resources:
                 - dynamodb:Scan
               Resource: !GetAtt BedrockMetadataImagesS3Table.Arn
       Events:
-        ApiEvent:
+        ApiEcommerce:
           Type: Api
           Properties:
             Path: /products
