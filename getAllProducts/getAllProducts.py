@@ -1,4 +1,3 @@
-# getAllProducts/app.py
 import boto3
 import os
 import json
