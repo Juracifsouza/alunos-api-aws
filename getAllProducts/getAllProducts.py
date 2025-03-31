@@ -1,27 +1,26 @@
 # getAllProducts/app.py
-import json
 import boto3
+import os
+import json
+import logging
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 dynamodb = boto3.resource('dynamodb')
-TABLE_NAME = "BedrockMetadataImagesS3Table"  # Nome da tabela do template
+TABLE_NAME = os.environ['TABLE_NAME']
 
-def lambda_handler(event: dict, context: object) -> dict:
+def lambda_handler(event, context):
+    logger.info(f"Nome da tabela sendo usada: {TABLE_NAME}")
     table = dynamodb.Table(TABLE_NAME)
-    
     try:
-        # Executa um scan para obter todos os itens da tabela
         response = table.scan()
-        items = response.get('Items', [])
-        
-        # Retorna os itens em formato JSON
         return {
             'statusCode': 200,
-            'body': json.dumps(items),
-            'headers': {
-                'Content-Type': 'application/json'
-            }
+            'body': json.dumps(response['Items'])
         }
     except Exception as e:
+        logger.error(f"Erro ao escanear a tabela: {str(e)}")
         return {
             'statusCode': 500,
             'body': json.dumps({'error': str(e)})
