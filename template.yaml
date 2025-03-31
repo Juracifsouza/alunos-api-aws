@@ -103,6 +103,7 @@ Resources:
     Properties:
       Handler: getAllProducts.lambda_handler
       Runtime: python3.13
+      CodeUri: GetAllProducts/
       Timeout: 30
       Policies:
         - DynamoDBReadPolicy:
@@ -120,7 +121,7 @@ Resources:
     Properties:
       Handler: getProductById.lambda_handler
       Runtime: python3.13
-      CodeUri: .
+      CodeUri: GetProductById/
       Events:
         ApiEvent:
           Type: Api
@@ -207,9 +208,12 @@ Outputs:
   CreatePresignedUrlFunctionIamRole:
     Description: Implicit IAM Role created for function
     Value: !GetAtt CreatePresignedUrlFunction.Arn
-  ApiUrl:
-    Description: "API Gateway endpoint URL"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/products"
+  ApiUrlGetAllProducts:
+    Description: "API Gateway endpoint URL GetAllProducts"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/GetAllProducts"
+  ApiUrlGetProductById:
+    Description: "API Gateway endpoint URL GetProductById"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/GetProductById/{id}"
   TableName:
     Description: "DynamoDB table name"
     Value: !Ref BedrockMetadataImagesS3Table
