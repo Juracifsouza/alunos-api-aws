@@ -103,6 +103,7 @@ Resources:
     Properties:
       Handler: getAllProducts.lambda_handler
       Runtime: python3.13
+      CodeUri: GetAllProducts/
       Policies:
         - Statement:
             - Effect: Allow
