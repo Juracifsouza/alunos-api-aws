@@ -97,6 +97,7 @@ Resources:
           Properties:
             Queue: !GetAtt DetectLabelQueue.Arn
 
+  # Definição da função Lambda
   GetAllProductsFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -140,7 +141,7 @@ Resources:
             Path: /products/{id}
             Method: get
 
-  # Função Lambda
+  # Definição da função Lambda
   SendEmailNotificationFunction:
     Type: AWS::Serverless::Function
     Properties:
