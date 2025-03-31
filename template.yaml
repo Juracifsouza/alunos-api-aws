@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
   alunos-api-aws
@@ -103,17 +103,20 @@ Resources:
     Properties:
       Handler: getAllProducts.lambda_handler
       Runtime: python3.13
-      CodeUri: GetAllProducts/
-      Timeout: 30
       Policies:
-        - DynamoDBReadPolicy:
-            TableName: !Ref BedrockMetadataImagesS3Table
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:Scan
+                - dynamodb:Query
+                - dynamodb:GetItem
+              Resource: !GetAtt BedrockMetadataImagesS3Table.Arn
       Events:
         ApiEvent:
           Type: Api
           Properties:
             Path: /products
-            Method: GET
+            Method: get
 
   # Definição da função Lambda
   GetProductByIdFunction:
@@ -122,15 +125,20 @@ Resources:
       Handler: getProductById.lambda_handler
       Runtime: python3.13
       CodeUri: GetProductById/
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:Scan
+                - dynamodb:Query
+                - dynamodb:GetItem
+              Resource: !GetAtt BedrockMetadataImagesS3Table.Arn
       Events:
         ApiEvent:
           Type: Api
           Properties:
             Path: /products/{id}
             Method: GET
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref BedrockMetadataImagesS3Table
 
   # Função Lambda
   SendEmailNotificationFunction:
@@ -210,13 +218,13 @@ Outputs:
     Value: !GetAtt CreatePresignedUrlFunction.Arn
   ApiUrlGetAllProducts:
     Description: "API Gateway endpoint URL GetAllProducts"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/GetAllProducts"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/products"
   ApiUrlGetProductById:
     Description: "API Gateway endpoint URL GetProductById"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/GetProductById/{id}"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/products/{id}"
   TableName:
     Description: "DynamoDB table name"
-    Value: !Ref BedrockMetadataImagesS3Table
+    Value: !GetAtt BedrockMetadataImagesS3Table.Arn
   LambdaFunctionArn:
     Description: ARN da função Lambda
     Value: !GetAtt SendEmailNotificationFunction.Arn
