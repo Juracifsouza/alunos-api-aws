@@ -1,41 +1,28 @@
+# getAllProducts/app.py
 import json
 import boto3
-from boto3.dynamodb.conditions import Key
 
-def lambda_handler(event, context):
-    # Inicializar cliente DynamoDB
-    dynamodb = boto3.resource('dynamodb')
-    table_name = "BedrockMetadataImagesS3Table"  # Nome da tabela referenciada
-    table = dynamodb.Table(table_name)
+dynamodb = boto3.resource('dynamodb')
+TABLE_NAME = "BedrockMetadataImagesS3Table"  # Nome da tabela do template
+
+def lambda_handler(event: dict, context: object) -> dict:
+    table = dynamodb.Table(TABLE_NAME)
     
     try:
-        # Scan para obter todos os itens da tabela
+        # Executa um scan para obter todos os itens da tabela
         response = table.scan()
         items = response.get('Items', [])
         
-        # Lidar com paginação se houver mais itens
-        while 'LastEvaluatedKey' in response:
-            response = table.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
-            items.extend(response.get('Items', []))
-        
+        # Retorna os itens em formato JSON
         return {
             'statusCode': 200,
-            'body': json.dumps({
-                'products': items,
-                'count': len(items)
-            }),
+            'body': json.dumps(items),
             'headers': {
                 'Content-Type': 'application/json'
             }
         }
-        
     except Exception as e:
         return {
             'statusCode': 500,
-            'body': json.dumps({
-                'error': str(e)
-            }),
-            'headers': {
-                'Content-Type': 'application/json'
-            }
+            'body': json.dumps({'error': str(e)})
         }
