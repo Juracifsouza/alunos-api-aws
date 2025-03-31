@@ -101,7 +101,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: getAllProducts/
-      Handler: GetAllProducts.lambda_handler
+      Handler: getAllProducts.lambda_handler
       Runtime: python3.13
       Architectures:
         - x86_64
@@ -109,11 +109,8 @@ Resources:
         Variables:
           TABLE_NAME: !Ref BedrockMetadataImagesS3Table
       Policies:
-        - Statement:
-            - Effect: Allow
-              Action:
-                - dynamodb:Scan
-              Resource: !GetAtt BedrockMetadataImagesS3Table.Arn
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BedrockMetadataImagesS3Table
       Events:
         ApiEcommerce:
           Type: Api
@@ -125,23 +122,23 @@ Resources:
   GetProductByIdFunction:
     Type: AWS::Serverless::Function
     Properties:
+      CodeUri: getProductById/
       Handler: getProductById.lambda_handler
       Runtime: python3.13
-      CodeUri: GetProductById/
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref BedrockMetadataImagesS3Table
       Policies:
-        - Statement:
-            - Effect: Allow
-              Action:
-                - dynamodb:Scan
-                - dynamodb:Query
-                - dynamodb:GetItem
-              Resource: !GetAtt BedrockMetadataImagesS3Table.Arn
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BedrockMetadataImagesS3Table
       Events:
         ApiEvent:
           Type: Api
           Properties:
             Path: /products/{id}
-            Method: GET
+            Method: get
 
   # Função Lambda
   SendEmailNotificationFunction:
