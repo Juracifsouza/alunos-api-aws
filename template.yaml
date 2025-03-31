@@ -221,7 +221,7 @@ Outputs:
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/products"
   ApiUrlGetProductById:
     Description: "API Gateway endpoint URL GetProductById"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/products/{id}"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/products?id=1"
   TableName:
     Description: "DynamoDB table name"
     Value: !GetAtt BedrockMetadataImagesS3Table.Arn
