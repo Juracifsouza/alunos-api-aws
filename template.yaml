@@ -105,11 +105,10 @@ Resources:
       Runtime: python3.13
       CodeUri: GetAllProducts/
       Policies:
-          Statement:
+        - Statement:
             - Effect: Allow
+              Action:
                 - dynamodb:Scan
-                - dynamodb:Query
-                - dynamodb:GetItem
               Resource: !GetAtt BedrockMetadataImagesS3Table.Arn
       Events:
         ApiEvent:
