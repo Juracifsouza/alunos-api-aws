@@ -1,6 +1,7 @@
-import json
 import boto3
-from botocore.exceptions import ClientError
+import os
+import json
+import logging
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -10,8 +11,8 @@ TABLE_NAME = os.environ['TABLE_NAME']
 
 def lambda_handler(event, context):
     # Obter o ID do path parameter
+    logger.info(f"Nome da tabela sendo usada: {TABLE_NAME}")
     product_id = event.get('pathParameters', {}).get('id')
-    
     if not product_id:
         return {
             'statusCode': 400,
@@ -19,7 +20,6 @@ def lambda_handler(event, context):
         }
     
     # Referenciar a tabela DynamoDB
-    logger.info(f"Nome da tabela sendo usada: {TABLE_NAME}")
     table = dynamodb.Table('BedrockMetadataImagesS3Table')
     
     try:
@@ -45,7 +45,7 @@ def lambda_handler(event, context):
             }
         }
         
-    except ClientError as e:
+    except Exception as e:
         logger.error(f"Erro ao escanear a tabela: {str(e)}")
         return {
             'statusCode': 500,
