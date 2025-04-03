@@ -97,6 +97,17 @@ Resources:
           Properties:
             Queue: !GetAtt DetectLabelQueue.Arn
 
+  # Definição da tabela DynamoDB
+  BedrockMetadataImagesS3Table:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: id
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
   # Definição da função Lambda
   GetAllProductsFunction:
     Type: AWS::Serverless::Function
@@ -195,17 +206,6 @@ Resources:
     Type: AWS::SES::EmailIdentity
     Properties:
       EmailIdentity: "juracifsouza02@gmail.com"  # Substituir por email real
-
-  # Definição da tabela DynamoDB
-  BedrockMetadataImagesS3Table:
-    Type: AWS::Serverless::SimpleTable
-    Properties:
-      PrimaryKey:
-        Name: id
-        Type: String
-      ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
 
 Outputs:
   ApiEcommerce:
