@@ -145,7 +145,7 @@ Resources:
   SendEmailNotificationFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: sendEmailNotification.lambda_handler
+      Handler: sendEmailNotification.sendEmailNotification.lambda_handler
       Runtime: python3.13
       Timeout: 30
       Environment:
