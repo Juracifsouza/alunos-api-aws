@@ -129,6 +129,7 @@ Resources:
           Properties:
             Path: /products
             Method: get
+      Timeout: 30
 
   # Definição da função Lambda
   GetProductByIdFunction:
