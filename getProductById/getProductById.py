@@ -7,10 +7,9 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 dynamodb = boto3.resource('dynamodb')
-TABLE_NAME = os.environ['TABLE_NAME']
+TABLE_NAME = os.environ.get('TABLE_NAME')  # Obtém da variável de ambiente
 
 def lambda_handler(event, context):
-    # Verificar se event é válido
     if not event or not isinstance(event, dict):
         logger.error("Evento inválido ou ausente")
         return {
@@ -18,7 +17,6 @@ def lambda_handler(event, context):
             'body': json.dumps({'error': 'Invalid or missing event'})
         }
 
-    # Obter o ID do path parameter
     logger.info(f"Nome da tabela sendo usada: {TABLE_NAME}")
     product_id = event.get('pathParameters', {}).get('id')
     if not product_id:
@@ -28,18 +26,17 @@ def lambda_handler(event, context):
             'body': json.dumps({'error': 'Product ID is required'})
         }
     
-    # Referenciar a tabela DynamoDB
-    table = dynamodb.Table('BedrockMetadataImagesS3Table')
+    if not TABLE_NAME:
+        logger.error("Nome da tabela não configurado")
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error': 'Table name not configured'})
+        }
+
+    table = dynamodb.Table(TABLE_NAME)  # Usa a variável de ambiente
     
     try:
-        # Consultar o item pelo ID
-        response = table.get_item(
-            Key={
-                'id': product_id
-            }
-        )
-        
-        # Verificar se o item existe
+        response = table.get_item(Key={'id': product_id})
         if 'Item' not in response:
             logger.info(f"Produto com ID {product_id} não encontrado")
             return {
@@ -51,11 +48,15 @@ def lambda_handler(event, context):
         return {
             'statusCode': 200,
             'body': json.dumps(response['Item']),
-            'headers': {
-                'Content-Type': 'application/json'
-            }
+            'headers': {'Content-Type': 'application/json'}
         }
         
+    except dynamodb.meta.client.exceptions.ResourceNotFoundException:
+        logger.error(f"Tabela {TABLE_NAME} não encontrada")
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error': f'Table {TABLE_NAME} not found'})
+        }
     except Exception as e:
         logger.error(f"Erro ao consultar a tabela: {str(e)}")
         return {
