@@ -168,10 +168,16 @@ Resources:
       Environment:
         Variables:
           TABLE_NAME: !Ref BedrockMetadataImagesS3Table
-          SENDER_EMAIL: "juracifsouza02@gmail.com"  # Substituir por email verificado no SES
+          SENDER_EMAIL: "juracifsouza02@gmail.com"
       Policies:
         - SESCrudPolicy:
             IdentityName: !Ref SenderIdentity
+        - Statement:  # Adicionar política explícita
+            - Effect: Allow
+              Action:
+                - ses:SendEmail
+                - ses:SendRawEmail
+              Resource: "*"
         - DynamoDBCrudPolicy:
             TableName: !Ref BedrockMetadataImagesS3Table
         - Statement:
@@ -183,12 +189,10 @@ Resources:
                 - sqs:GetQueueAttributes
               Resource: "*"
       Events:
-        # Opção 1: Trigger via SNS
         SNSTrigger:
           Type: SNS
           Properties:
-            Topic: !Ref NotificationTopic
-        # Opção 2: Trigger via SQS (descomente se preferir SQS)
+            Topic: !Ref NotificationTopic        # Opção 2: Trigger via SQS (descomente se preferir SQS)
         # SQSTrigger:
         #   Type: SQS
         #   Properties:
