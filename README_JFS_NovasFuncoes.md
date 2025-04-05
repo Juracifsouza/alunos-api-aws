@@ -112,7 +112,7 @@ A função `getProductById` é uma função AWS Lambda que:
    - Status 400 se o ID não for fornecido
    - Status 500 em caso de erros internos
 
-Endpoint da API: `GET /products?id={product_id}`
+Endpoint da API: `GET /productid?id={product_id}`
 
 #### Respostas possíveis:
 ```json
@@ -183,7 +183,7 @@ Exemplo de event.json:
 1. Obtenha o endpoint da API do output da implantação
 2. Use curl ou Postman:
 ```bash
-curl "https://<api-id>.execute-api.<region>.amazonaws.com/Prod/products?id=123"
+curl "https://<api-id>.execute-api.<region>.amazonaws.com/Prod/productid?id=123"
 ```
 
 
