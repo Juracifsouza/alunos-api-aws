@@ -73,29 +73,18 @@ sam deploy \
 
 5. Após o deploy, o URL da API será exibido nos Outputs do CloudFormation
 
-## Testes
+### Teste na AWS
 
-### Teste Local
-1. Invoque a função localmente:
-```bash
-sam local invoke GetAllProductsFunction -e event.json
-```
+Vá em : Lambda > Funções > alunos-api-aws-GetAllProductsFunction-HcIZrFZyG0I7
 
-Exemplo de `event.json`:
+Em "Testar" Use um evento de teste como:
+
 ```json
 {
   "httpMethod": "GET",
   "path": "/products"
 }
 ```
-
-### Teste na AWS
-1. Obtenha o URL da API do Output do CloudFormation
-2. Use curl ou Postman:
-```bash
-curl https://<api-id>.execute-api.<region>.amazonaws.com/Prod/products
-```
-
 
 
 ## Nova Função : getProductById : Lambda para consultar um produto específico por ID no DynamoDB 
@@ -162,28 +151,19 @@ sam deploy --guided
 
 4. Após a implantação, o SAM fornecerá o endpoint da API como output
 
-## Testes
 
-### Teste Local
-1. Invoque a função localmente:
-```bash
-sam local invoke "GetProductByIdFunction" -e events/event.json
-```
+### Teste na AWS
 
-Exemplo de event.json:
+Vá em : Lambda > Funções > alunos-api-aws-GetProductByIdFunction-cwfWiQ71XdJE
+
+Em "Testar" Use um evento de teste como:
+
 ```json
 {
-  "queryStringParameters": {
-    "id": "123"
+  "pathParameters": {
+    "id": "6fa50a4d-a39e-4dfd-986f-454bab3d2027"
   }
 }
-```
-
-### Teste na Cloud
-1. Obtenha o endpoint da API do output da implantação
-2. Use curl ou Postman:
-```bash
-curl "https://<api-id>.execute-api.<region>.amazonaws.com/Prod/productid?id=123"
 ```
 
 
