@@ -12,21 +12,30 @@ TABLE_NAME = os.environ['TABLE_NAME']
 SENDER_EMAIL = os.environ['SENDER_EMAIL']
 
 def lambda_handler(event, context):
-    """
-    Handler da função Lambda que processa eventos e envia notificações por email
-    """
     try:
-        # Processar evento (suporta tanto SNS quanto SQS)
+        # Processar evento
         if 'Records' in event:
             for record in event['Records']:
-                # Verificar origem do evento
                 if 'Sns' in record:
-                    message = json.loads(record['Sns']['Message'])
-                else:  # SQS
-                    message = json.loads(record['body'])
+                    raw_message = record['Sns']['Message']
+                    print(f"Mensagem bruta recebida: {raw_message}")
+                    
+                    # Tentar decodificar como JSON
+                    try:
+                        message = json.loads(raw_message)
+                    except json.JSONDecodeError as e:
+                        print(f"Erro ao decodificar JSON: {str(e)}")
+                        # Caso a mensagem não seja JSON, assumir que é apenas o image_id como string
+                        message = {"image_id": raw_message} if raw_message else {}
                 
-                # Extrair informações da mensagem
+                # Extrair image_id
                 image_id = message.get('image_id')
+                if not image_id:
+                    print("Nenhum image_id encontrado na mensagem")
+                    return {
+                        'statusCode': 400,
+                        'body': json.dumps('Mensagem inválida: image_id não fornecido')
+                    }
                 
                 # Buscar metadados no DynamoDB
                 table = dynamodb.Table(TABLE_NAME)
@@ -42,7 +51,7 @@ def lambda_handler(event, context):
                 image_data = response['Item']
                 
                 # Preparar email
-                recipient = "user@example.com"  # Substituir por email real
+                recipient = "juracifsouza02@gmail.com"  # Substituir por email real
                 subject = f"Nova Imagem Armazenada: {image_id}"
                 body = f"""
                 Uma nova imagem foi armazenada!
@@ -66,6 +75,7 @@ def lambda_handler(event, context):
                 )
                 
                 print(f"Email enviado com sucesso: {ses_response['MessageId']}")
+                print(f"Detalhes do envio - Remetente: {SENDER_EMAIL}, Destinatário: {recipient}, Assunto: {subject}")
                 
         return {
             'statusCode': 200,
