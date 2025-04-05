@@ -150,8 +150,13 @@ Resources:
         ApiEvent:
           Type: Api
           Properties:
-            Path: /products/{id}
+            Path: /productid/{id}
             Method: get
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: arn:aws:dynamodb:us-east-2:075155269134:table/BedrockMetadataImagesS3Table
 
   # Definição da função Lambda
   SendEmailNotificationFunction:
@@ -223,7 +228,7 @@ Outputs:
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/products"
   ApiUrlGetProductById:
     Description: "API Gateway endpoint URL GetProductById"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/products?id=1"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/productid"
   TableName:
     Description: "DynamoDB table name"
     Value: !GetAtt BedrockMetadataImagesS3Table.Arn
