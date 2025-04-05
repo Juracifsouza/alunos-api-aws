@@ -231,6 +231,13 @@ Objetivo : Avisar quando houver a inclusão de uma imagem de um produto no Dynam
 
 ## Testes
 
+### Teste1 na AWS
+
+Vá em : Amazon SNS > Tópicos ImageUploadNotificationTopic
+- Publique um mensagem 
+  - No corpo da mensagem a ser enviada ao endpoint escreva:
+      {"image_id": "6fa50a4d-a39e-4dfd-986f-454bab3d2027"}
+
 ### Teste Local
 1. Crie um arquivo `event.json`:
    ```json
