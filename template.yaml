@@ -168,7 +168,7 @@ Resources:
       Environment:
         Variables:
           TABLE_NAME: !Ref BedrockMetadataImagesS3Table
-          SENDER_EMAIL: "juracifsouza02@gmail.com"
+          SENDER_EMAIL: Juraci Souza <juracifsouza02@gmail.com>
       Policies:
         - SESCrudPolicy:
             IdentityName: !Ref SenderIdentity
